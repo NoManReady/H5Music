@@ -140,6 +140,7 @@ var Hmusic={
             that._qLite('.music-rate')[0].innerHTML=text;
             console.log(rate);
             if(rate>=100){
+                rate=0;
                 var nextNode=that._getNextNode(that._qLite('#music_list li.active')[0]);
                 nextNode&&nextNode.onclick();
                 if(nextNode){
