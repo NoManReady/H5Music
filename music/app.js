@@ -8,6 +8,8 @@ var fs = require('fs');
 
 var app = express();
 
+var music=path.join(__dirname,'/public/musics');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -23,26 +25,24 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/:id', function(req, res) {
-    var id = req.params.musicId;
-    fs.readFile(path.join(__dirname,'public/musics/'+id),function(err,data){
+    var id = req.params.id;
+    fs.readFile(path.join(music,id),function(err,data){
         if(err){
             console.log(err);
         }else{
-            res.json(data);
+            res.send(data);
         }
     });
 });
 
 app.get('/',function(req,res){
-    fs.readdir(path.join(__dirname, 'public/musics'), function(err, files) {
+    fs.readdir(music, function(err, musics) {
         if (err) {
             console.log(err);
         } else {
-            console.log(files);
-
             res.render('index', {
-                files: files,
-                title: 'H5音乐可视化'
+                musics: musics,
+                title: 'NoManReady_Music'
             });
         }
     });

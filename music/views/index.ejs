@@ -6,30 +6,33 @@
   </head>
   <body>
     <div class="container">
-    	<div class="top-banner">
-          <h1 class="title"><%=title%></h1>
-          <div class="btn-tool">
-            <ul class="view-type">
-              <li data-type="doted">doted</li>
-              <li data-type="column">column</li>
-            </ul>
-            <div>
-              音量：<input type="range" min="0" max="100" value="40"/>
+        <header class="header">
+            <h1><%=title%></h1>
+            <div class="music-tool">
+                <div class="type-tool clearfix">
+                    <ul id="type_list">
+                        <li title="点状图">Doted</li>
+                        <li class="active" title="柱状图">Column</li>
+                    </ul>
+                </div>
+                <p class="voice-tool">
+                    <input type="range" min="0" max="100" value="40" id="voice_control"/>
+                </p>
             </div>
-          </div>
-        </div>
-    	<div class="main-content">
-    		<div class="left">
-              <ul class="music-list">
-              <%for(var i=0;i<files.length;i++){%>
-                <li><a class="music-item" href="javascript:void (0)" title="<%=files[i]%>"><%=files[i]%></a></li>
-              <%}%>
-              </ul>
+        </header>
+        <section class="main">
+            <nav class="left">
+                <ul class="music-list" id="music_list">
+                    <%musics.forEach(function(music){%>
+                        <li class="music-item" title="<%=music%>"><%=music%></li>
+                    <%})%>
+                </ul>
+            </nav>
+            <div class="right">
+                <canvas id="canvas"></canvas>
             </div>
-    		<div class="right"></div>
-    	</div>
+        </section>
     </div>
-    <script src="/javascripts/jquery-1.11.2.js"/>
-    <script src="/javascripts/index.js"/>
+    <script src="/javascripts/index.js" type="text/javascript"></script>
   </body>
 </html>
