@@ -41,6 +41,7 @@ var Hmusic={
         //定义图形类型
         for(var i= 0,liLen=typeLis.length;i<liLen;i++){
             typeLis[i].onclick=function(){
+                that.nextMusic=true;
                 if(this.className=='active'){
                     return;
                 }
@@ -120,6 +121,7 @@ var Hmusic={
             bufferSource[bufferSource.start?'start':'noteOn'](0);
             that.source=bufferSource;
             that.duration=bufferSource.buffer.duration;
+            that.nextMusic=false;
         },function(err){
             console.log(err);
         });
@@ -135,20 +137,19 @@ var Hmusic={
             that.analyser.getByteFrequencyData(arr);
             requestAnimationFrame(timer);
             that._canvasDisplay(arr);
-            var rate=that.source?(that.ac.currentTime/that.duration*100):0;
+            var rate=that.nextMusic?(that.ac.currentTime/that.duration*100):0;
             var text=that.source?(rate.toFixed(0)=='NaN'?0:rate.toFixed(0))+'%':'loading...';
             that._qLite('.music-rate')[0].innerHTML=text;
             console.log(rate);
             if(rate>=100){
-                that.source=null;
-                var nextNode=that._getNextNode(that._qLite('#music_list li.active')[0]);
-                nextNode&&nextNode.onclick();
-                if(nextNode){
-                    nextNode.onclick();
-                    that._qLite('.music-rate')[0].innerHTML='waiting...';
-                }else{
-                    that._qLite('.music-rate')[0].innerHTML='finish...';
-                }
+                //var nextNode=that._getNextNode(that._qLite('#music_list li.active')[0]);
+                //if(nextNode){
+                //    nextNode.onclick();
+                //    that._qLite('.music-rate')[0].innerHTML='waiting...';
+                //}else{
+                //    that._qLite('.music-rate')[0].innerHTML='finish...';
+                //}
+                that._qLite('.music-rate')[0].innerHTML='finish...';
             }
         };
         requestAnimationFrame(timer);

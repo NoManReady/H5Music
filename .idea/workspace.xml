@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="257fbc9f-3d1d-4e6c-9d4a-9fc76c4a149f" name="!changes.default.changelist.name!" comment="" />
+    <list default="true" id="257fbc9f-3d1d-4e6c-9d4a-9fc76c4a149f" name="!changes.default.changelist.name!" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/music/public/stylesheets/index.css" afterPath="$PROJECT_DIR$/music/public/stylesheets/index.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/music/public/javascripts/index.js" afterPath="$PROJECT_DIR$/music/public/javascripts/index.js" />
+    </list>
     <ignored path="H5Music.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -37,8 +40,8 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/music/public/javascripts/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.79234976" vertical-offset="2351" max-vertical-offset="4807">
-              <caret line="141" column="26" selection-start-line="141" selection-start-column="26" selection-end-line="141" selection-end-column="26" />
+            <state vertical-scroll-proportion="0.8442623" vertical-offset="2522" max-vertical-offset="4826">
+              <caret line="151" column="68" selection-start-line="151" selection-start-column="68" selection-end-line="151" selection-end-column="68" />
               <folding>
                 <element signature="e#0#49#0" expanded="false" />
               </folding>
@@ -50,7 +53,7 @@
         <entry file="file://$PROJECT_DIR$/music/public/stylesheets/index.css">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="579" max-vertical-offset="2660">
-              <caret line="50" column="32" selection-start-line="50" selection-start-column="32" selection-end-line="50" selection-end-column="32" />
+              <caret line="33" column="10" selection-start-line="33" selection-start-column="10" selection-end-line="33" selection-end-column="10" />
               <folding />
             </state>
           </provider>
@@ -75,8 +78,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/music/app.js" />
-        <option value="$PROJECT_DIR$/music/public/stylesheets/index.css" />
         <option value="$PROJECT_DIR$/music/views/index.ejs" />
+        <option value="$PROJECT_DIR$/music/public/stylesheets/index.css" />
         <option value="$PROJECT_DIR$/music/public/javascripts/index.js" />
       </list>
     </option>
@@ -455,7 +458,7 @@
     <entry file="file://$PROJECT_DIR$/music/public/stylesheets/index.css">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="579" max-vertical-offset="2660">
-          <caret line="50" column="32" selection-start-line="50" selection-start-column="32" selection-end-line="50" selection-end-column="32" />
+          <caret line="33" column="10" selection-start-line="33" selection-start-column="10" selection-end-line="33" selection-end-column="10" />
           <folding />
         </state>
       </provider>
@@ -470,8 +473,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/music/public/javascripts/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.79234976" vertical-offset="2351" max-vertical-offset="4807">
-          <caret line="141" column="26" selection-start-line="141" selection-start-column="26" selection-end-line="141" selection-end-column="26" />
+        <state vertical-scroll-proportion="0.8442623" vertical-offset="2522" max-vertical-offset="4826">
+          <caret line="151" column="68" selection-start-line="151" selection-start-column="68" selection-end-line="151" selection-end-column="68" />
           <folding>
             <element signature="e#0#49#0" expanded="false" />
           </folding>
