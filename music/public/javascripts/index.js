@@ -97,6 +97,9 @@ var Hmusic={
     },
     /*获取下一个节点*/
     _getNextNode:function(node){
+        if(!node.nextSibling){
+            return null;
+        }
         if(node.nextSibling.nodeType == 1){    //判断下一个节点类型为1则是“元素”节点
             return node.nextSibling;
         }
@@ -133,11 +136,13 @@ var Hmusic={
             requestAnimationFrame(timer);
             that._canvasDisplay(arr);
             var rate=(that.ac.currentTime/that.duration*100);
-            var text=that.source?(rate.toFixed(0)=='NaN'?0:rate.toFixed(0))+'%':'加载中...';
+            var text=that.source?(rate.toFixed(0)=='NaN'?0:rate.toFixed(0))+'%':'loading...';
             that._qLite('.music-rate')[0].innerHTML=text;
             console.log(rate);
             if(rate>=100){
-                that._getNextNode(that._qLite('#music_list li.active')[0])&&that._getNextNode(that._qLite('#music_list li.active')[0]).onclick();
+                var nextNode=that._getNextNode(that._qLite('#music_list li.active')[0]);
+                nextNode&&nextNode.onclick();
+                that._qLite('.music-rate')[0].innerHTML='waiting...';
             }
         };
         requestAnimationFrame(timer);
