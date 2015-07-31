@@ -142,7 +142,12 @@ var Hmusic={
             if(rate>=100){
                 var nextNode=that._getNextNode(that._qLite('#music_list li.active')[0]);
                 nextNode&&nextNode.onclick();
-                that._qLite('.music-rate')[0].innerHTML='waiting...';
+                if(nextNode){
+                    nextNode.onclick();
+                    that._qLite('.music-rate')[0].innerHTML='waiting...';
+                }else{
+                    that._qLite('.music-rate')[0].innerHTML='finish...';
+                }
             }
         };
         requestAnimationFrame(timer);
