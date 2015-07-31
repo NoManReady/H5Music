@@ -8,7 +8,7 @@ var Hmusic={
         this.canvasContainer=this._qLite('.right')[0];
         this.canvasDom=this._qLite('#canvas')[0];
         this.ctx=this.canvasDom.getContext('2d');
-        this.size=256;//定义canvas点的个数
+        this.size=128;//定义canvas点的个数
         this.type='柱状图';//定义初始化图形
         this.r=40;//定义圆的最大半径
 
@@ -18,7 +18,7 @@ var Hmusic={
         this.analyser=this.ac.createAnalyser();
         this.gain=this.ac[this.ac.createGain?'createGain':'createGainNode']();
         //analyser处理
-        this.analyser.fftSize=this.size*2;
+        this.analyser.fftSize=this.size*4;
         this.analyser.connect(this.gain);
         //gain处理
         this.gain.connect(this.ac.destination);
@@ -181,6 +181,13 @@ var Hmusic={
                     that.timers.remainTime=that.timers.totalTime-that.timers.playTime;
                     that._qLite('#play_time')[0].innerHTML=that.timers.playTime+'s';
                     that._qLite('#remain_time')[0].innerHTML=that.timers.remainTime+'s';
+
+                    if(that.timers.playTime%20==0&&!that.timers.hasChange){
+                        that.dots=that._dotedHandler();
+                        that.timers.hasChange=true;
+                    }else if(that.timers.playTime%20!=0){
+                        that.timers.hasChange=false;
+                    }
                 }else{
                     that.timers.firstTime=new Date().getTime();
                     return;
@@ -264,14 +271,11 @@ var Hmusic={
             this.r=40;
         }
         if(this.type=='柱状图'){
-            this.size=256;
             line=this.ctx.createLinearGradient(0,0,0,this.canvas.height);
             line.addColorStop(0,'red');
             line.addColorStop(0.5,'green');
             line.addColorStop(1,'blue');
             this.ctx.fillStyle=line;
-        }else{
-            this.size=128;
         }
     },
     /*后台获取歌曲信息*/
