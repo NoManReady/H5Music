@@ -37,7 +37,14 @@ var Hmusic={
         var musicLis=this._qLite('#music_list li'),
             voiceControl=this._qLite('#voice_control'),
             typeLis=this._qLite('#type_list li'),
+            navLeft=this._qLite('.left'),
             that=this;
+        navLeft[0].addEventListener('mouseover',function(){
+            this.style.opacity=0.7;
+        },false);
+        navLeft[0].addEventListener('mouseleave',function(){
+            this.style.opacity=0.3;
+        },false);
         //定义图形类型
         for(var i= 0,liLen=typeLis.length;i<liLen;i++){
             typeLis[i].onclick=function(){
@@ -52,7 +59,7 @@ var Hmusic={
                 //重置type
                 that.type=typeName;
                 that._resize();
-            }
+            };
         };
         //定义歌曲点击事件
         for(var i= 0,liLen=musicLis.length;i<liLen;i++){
@@ -65,7 +72,19 @@ var Hmusic={
                 //重新创建bufferSource
                 that.bufferSource=that.ac.createBufferSource();
                 that._ajaxHandler('/'+window.encodeURIComponent(musicName));
-            }
+            };
+            musicLis[i].addEventListener('mouseover',function(){
+                if(this.className=='music-item active')
+                    return;
+                this.className='music-item hover';
+            },false);
+            musicLis[i].addEventListener('mouseleave',function(){
+                if(this.className=='music-item active'){
+                    this.className='music-item active';
+                }else{
+                    this.className='music-item';
+                }
+            },false);
         };
         //定义音量大小事件
         voiceControl[0].onchange=function(){
