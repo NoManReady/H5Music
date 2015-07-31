@@ -41,7 +41,6 @@ var Hmusic={
         //定义图形类型
         for(var i= 0,liLen=typeLis.length;i<liLen;i++){
             typeLis[i].onclick=function(){
-                that.nextMusic=true;
                 if(this.className=='active'){
                     return;
                 }
@@ -119,9 +118,37 @@ var Hmusic={
             bufferSource.buffer=buffer;
             bufferSource.connect(analyser);
             bufferSource[bufferSource.start?'start':'noteOn'](0);
+            //重置参数（timeCount记录歌曲播放时长，source歌曲bufferSource对象，timers本地时间矫正数组）
             that.source=bufferSource;
-            that.duration=bufferSource.buffer.duration;
-            that.nextMusic=false;
+            // that.timeCount=0;
+            that.timers={};
+
+            that.timers.opeType='auto';
+
+            that.timers.totalTime=Math.ceil(bufferSource.buffer.duration);
+            //记录歌曲各个时间
+            that._qLite('#total_time')[0].innerHTML=that.timers.totalTime+'s';
+
+            //歌曲播放完成事件
+            that.source.onended=function(){
+                //重置参数
+                that.source=null;
+                // that.timeCount=0;
+
+                if(that.timers.opeType==='user'){
+                    that.timers={};
+                    return;
+                }
+                that.timers={};
+                //获取下一首歌曲
+                var nextNode=that._getNextNode(that._qLite('#music_list li.active')[0]);
+                if(nextNode){
+                   nextNode.onclick();
+                   that._qLite('.music-rate')[0].innerHTML='waiting...';
+                }else{
+                   that._qLite('.music-rate')[0].innerHTML='finish...';
+                }
+            }
         },function(err){
             console.log(err);
         });
@@ -133,24 +160,43 @@ var Hmusic={
         var requestAnimationFrame  =  window.requestAnimationFrame||
                                         window.webkitRequestAnimationFrame||
                                         window.mozRequestAnimationFrame;
+
         function timer(){
             that.analyser.getByteFrequencyData(arr);
             requestAnimationFrame(timer);
             that._canvasDisplay(arr);
-            var rate=that.source?(that.ac.currentTime/that.duration*100):0;
-            var text=that.source?(rate.toFixed(0)=='NaN'?0:rate.toFixed(0))+'%':'loading...';
-            that._qLite('.music-rate')[0].innerHTML=text;
-            console.log(rate);
-            if(rate>=100){
-                //var nextNode=that._getNextNode(that._qLite('#music_list li.active')[0]);
-                //if(nextNode){
-                //    nextNode.onclick();
-                //    that._qLite('.music-rate')[0].innerHTML='waiting...';
-                //}else{
-                //    that._qLite('.music-rate')[0].innerHTML='finish...';
-                //}
-                that._qLite('.music-rate')[0].innerHTML='finish...';
+            var value,
+                text;
+            if(Number.isNaN(value)||!that.source){
+                if(Number.isNaN(value)){
+                    text='loading...'
+                }else{
+                    text='waiting...';
+                }
+            }else{
+                if(that.timers.firstTime){
+                    that.timers.lastTime=new Date().getTime();
+                    that.timers.timeCount=that.timers.lastTime-that.timers.firstTime;
+                    that.timers.playTime=Math.ceil(that.timers.timeCount/1000);
+                    that.timers.remainTime=that.timers.totalTime-that.timers.playTime;
+                    that._qLite('#play_time')[0].innerHTML=that.timers.playTime+'s';
+                    that._qLite('#remain_time')[0].innerHTML=that.timers.remainTime+'s';
+                }else{
+                    that.timers.firstTime=new Date().getTime();
+                    return;
+                }
+                // that.timers.push(new Date().getTime());
+                // //that.source.buffer.duration为歌曲总的时长，1000/60为循环一次所发的时间，timers用于时间矫正；
+                // if(that.timers.length>2){
+                //     that.timeCount=that.timers[that.timers.length-1]-that.timers[0];
+                // }else{
+                //     that.timeCount+=(1000/60);
+                // }
+                value=that.timers.timeCount/(that.source.buffer.duration*1000)*100
+                rate=value>100?100:value;
+                text=rate.toFixed(0)+'%';
             }
+            that._qLite('.music-rate')[0].innerHTML=text;
         };
         requestAnimationFrame(timer);
     },
@@ -237,6 +283,7 @@ var Hmusic={
         if(this.source){
             this.source[this.source.stop?'stop':'noteOff']();
             this.source=null;
+            this.timers.opeType='user';
         }
         xhr.open('get',url,true);
         xhr.responseType='arraybuffer';
