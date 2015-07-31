@@ -95,6 +95,16 @@ var Hmusic={
     _qLite:function(selector){
         return document.querySelectorAll(selector);
     },
+    /*获取下一个节点*/
+    _getNextNode:function(node){
+        if(node.nextSibling.nodeType == 1){    //判断下一个节点类型为1则是“元素”节点
+            return node.nextSibling;
+        }
+        if(node.nextSibling.nodeType == 3){      //判断下一个节点类型为3则是“文本”节点  ，回调自身函数
+            return this._getNextNode(node.nextSibling);
+        }
+        return null;
+    },
     /*对歌曲数据进行处理*/
     _musicDataHandler:function(data){
         var that=this,
@@ -106,6 +116,7 @@ var Hmusic={
             bufferSource.connect(analyser);
             bufferSource[bufferSource.start?'start':'noteOn'](0);
             that.source=bufferSource;
+            that.duration=bufferSource.buffer.duration;
         },function(err){
             console.log(err);
         });
@@ -121,6 +132,13 @@ var Hmusic={
             that.analyser.getByteFrequencyData(arr);
             requestAnimationFrame(timer);
             that._canvasDisplay(arr);
+            var rate=(that.ac.currentTime/that.duration*100);
+            var text=that.source?(rate.toFixed(0)=='NaN'?0:rate.toFixed(0))+'%':'加载中...';
+            that._qLite('.music-rate')[0].innerHTML=text;
+            console.log(rate);
+            if(rate>=100){
+                that._getNextNode(that._qLite('#music_list li.active')[0])&&that._getNextNode(that._qLite('#music_list li.active')[0]).onclick();
+            }
         };
         requestAnimationFrame(timer);
     },

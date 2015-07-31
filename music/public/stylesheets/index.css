@@ -35,9 +35,20 @@ html,body,.container{
   text-align: center;
 }
 
+
 .header .music-tool{
   text-align: center;
   margin-top: 8px;
+  position: relative;
+}
+
+.header .music-rate{
+  position: absolute;
+  top:18px;
+  right:40px;
+  font-size: 30px;
+  color: #00B7FF;
+  text-shadow: 1px 1px 2px #b00;
 }
 .header ul{
   width: 170px;
