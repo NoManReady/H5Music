@@ -137,7 +137,7 @@ var Hmusic={
             that.analyser.getByteFrequencyData(arr);
             requestAnimationFrame(timer);
             that._canvasDisplay(arr);
-            var rate=that.nextMusic?(that.ac.currentTime/that.duration*100):0;
+            var rate=that.source?(that.ac.currentTime/that.duration*100):0;
             var text=that.source?(rate.toFixed(0)=='NaN'?0:rate.toFixed(0))+'%':'loading...';
             that._qLite('.music-rate')[0].innerHTML=text;
             console.log(rate);
