@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="257fbc9f-3d1d-4e6c-9d4a-9fc76c4a149f" name="!changes.default.changelist.name!" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/music/views/index.ejs" afterPath="$PROJECT_DIR$/music/views/index.ejs" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/music/public/javascripts/index.js" afterPath="$PROJECT_DIR$/music/public/javascripts/index.js" />
     </list>
     <ignored path="H5Music.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -26,21 +26,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.ejs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="index.ejs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/music/views/index.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.49868765" vertical-offset="19" max-vertical-offset="893">
+            <state vertical-scroll-proportion="-6.785714" vertical-offset="19" max-vertical-offset="893">
               <caret line="11" column="31" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="index.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/music/public/javascripts/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.5" vertical-offset="2465" max-vertical-offset="4807">
-              <caret line="142" column="23" selection-start-line="142" selection-start-column="23" selection-end-line="142" selection-end-column="23" />
+            <state vertical-scroll-proportion="0.79234976" vertical-offset="2351" max-vertical-offset="4807">
+              <caret line="141" column="26" selection-start-line="141" selection-start-column="26" selection-end-line="141" selection-end-column="26" />
               <folding>
                 <element signature="e#0#49#0" expanded="false" />
               </folding>
@@ -78,8 +78,8 @@
       <list>
         <option value="$PROJECT_DIR$/music/app.js" />
         <option value="$PROJECT_DIR$/music/public/stylesheets/index.css" />
-        <option value="$PROJECT_DIR$/music/public/javascripts/index.js" />
         <option value="$PROJECT_DIR$/music/views/index.ejs" />
+        <option value="$PROJECT_DIR$/music/public/javascripts/index.js" />
       </list>
     </option>
   </component>
@@ -462,21 +462,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/music/public/javascripts/index.js">
+    <entry file="file://$PROJECT_DIR$/music/views/index.ejs">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.5" vertical-offset="2465" max-vertical-offset="4807">
-          <caret line="142" column="23" selection-start-line="142" selection-start-column="23" selection-end-line="142" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#49#0" expanded="false" />
-          </folding>
+        <state vertical-scroll-proportion="-6.785714" vertical-offset="19" max-vertical-offset="893">
+          <caret line="11" column="31" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/music/views/index.ejs">
+    <entry file="file://$PROJECT_DIR$/music/public/javascripts/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.49868765" vertical-offset="19" max-vertical-offset="893">
-          <caret line="11" column="31" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
-          <folding />
+        <state vertical-scroll-proportion="0.79234976" vertical-offset="2351" max-vertical-offset="4807">
+          <caret line="141" column="26" selection-start-line="141" selection-start-column="26" selection-end-line="141" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#49#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>

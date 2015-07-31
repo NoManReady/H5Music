@@ -135,12 +135,12 @@ var Hmusic={
             that.analyser.getByteFrequencyData(arr);
             requestAnimationFrame(timer);
             that._canvasDisplay(arr);
-            var rate=(that.ac.currentTime/that.duration*100);
+            var rate=that.source?(that.ac.currentTime/that.duration*100):0;
             var text=that.source?(rate.toFixed(0)=='NaN'?0:rate.toFixed(0))+'%':'loading...';
             that._qLite('.music-rate')[0].innerHTML=text;
             console.log(rate);
             if(rate>=100){
-                rate=0;
+                that.source=null;
                 var nextNode=that._getNextNode(that._qLite('#music_list li.active')[0]);
                 nextNode&&nextNode.onclick();
                 if(nextNode){
