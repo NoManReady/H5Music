@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="257fbc9f-3d1d-4e6c-9d4a-9fc76c4a149f" name="!changes.default.changelist.name!" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/music/public/javascripts/index.js" afterPath="$PROJECT_DIR$/music/public/javascripts/index.js" />
-    </list>
+    <list default="true" id="257fbc9f-3d1d-4e6c-9d4a-9fc76c4a149f" name="!changes.default.changelist.name!" comment="" />
     <ignored path="H5Music.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
