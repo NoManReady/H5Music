@@ -38,7 +38,14 @@ var Hmusic={
             voiceControl=this._qLite('#voice_control'),
             typeLis=this._qLite('#type_list li'),
             navLeft=this._qLite('.left'),
+            musicTitle=this._qLite('#music_title'),
+            masked=this._qLite('.masked'),
             that=this;
+        //标题设置
+        musicTitle[0].addEventListener('blur',function(){
+            masked[0].innerHTML=this.value||'NoManReady_Music';
+        },false);
+        //歌曲菜单移入移除事件
         navLeft[0].addEventListener('mouseover',function(){
             this.style.opacity=0.7;
         },false);
@@ -236,7 +243,8 @@ var Hmusic={
             dots.push({
                 x:x,
                 y:y,
-                color:color
+                color:color,
+                direct:Math.random()>0.5?'go':'back'
             });
         }
         return dots;
@@ -250,11 +258,19 @@ var Hmusic={
         var that=this;
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
         var w=canvas.width/this.size;
-        this.dots.forEach(function(dot){
-            if(dot.x>=that.canvas.width){
-                dot.x=0;
+        this.dots.forEach(function(dot,index,dots){
+            if(dot.direct==='back'){
+                if(dot.x<=0){
+                    dot.x=that.canvas.width;
+                }else{
+                    dot.x-=(Math.random()*2);
+                }
             }else{
-                dot.x+=1;
+                if(dot.x>=that.canvas.width){
+                    dot.x=0;
+                }else{
+                    dot.x+=(Math.random()*2);
+                }
             }
 
         })

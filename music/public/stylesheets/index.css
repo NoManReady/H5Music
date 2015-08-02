@@ -36,9 +36,24 @@ html, body, .container {
   width: calc(100% - 20px);
   height: 140px;
   margin: 10px;
+  text-align: center;
 }
 .header h2 {
   text-align: center;
+}
+.header .music-text input {
+  padding: 6px 3px;
+  border-radius: 3px;
+  color: #272B28;
+  margin-left: 3px;
+  border: none;
+  background-color: #000;
+  text-align: center;
+  margin-top: 5px;
+}
+.header .music-text input:hover, .header .music-text input:focus {
+  background-color: #6B6868;
+  color: #52CC70;
 }
 .header .music-tool {
   text-align: center;
@@ -47,7 +62,7 @@ html, body, .container {
 }
 .header .music-rate {
   position: absolute;
-  top: -30px;
+  top: -65px;
   right: 0px;
   font-size: 20px;
   color: #00B7FF;
@@ -55,7 +70,7 @@ html, body, .container {
 }
 .header .music-time {
   position: absolute;
-  top: -30px;
+  top: -65px;
   left: 0;
   color: #2E73AF;
   text-shadow: 0px 0px 1px #0b0;
@@ -117,7 +132,7 @@ html, body, .container {
   text-overflow: ellipsis;
   overflow: hidden;
   border-radius: 3px;
-  padding:0 5px;
+  padding: 0 5px;
 }
 .left .music-item.active {
   color: rgb(243, 176, 176);
@@ -134,12 +149,33 @@ html, body, .container {
   width: calc(85% - 30px);
   height: calc(100% - 170px);
 }
+
+/*媒体查询*/
 @media screen and (max-width:600px) {
   .header {
     height: 80px;
+    font-size: smaller;
   }
-  .left, right {
+  .left, .right {
     top: 100px;
+    height: calc(100% - 110px);
+  }
+  .music-text{
+    display: none;
+  }
+  .header .music-time,.header .music-rate{
+    top:-30px;
+  }
+}
+@media screen and (max-width:460px) {
+  .music-time,.left{
+    display: none;
+  }
+  .right{
+    width:calc(100% - 20px);
+    left: 10px;
+    top:100px;
+    height: calc(100% - 110px);
   }
 }
 @media screen and (max-height:400px) {
@@ -149,6 +185,50 @@ html, body, .container {
   }
   .left, .right {
     top: 120px;
-    height: calc(100% - 130px);
+    height: calc(100% - 110px);
   }
+  .music-text{
+    display: none;
+  }
+  .header .music-time,.header .music-rate{
+    top:-30px;
+  }
+}
+
+/*标题样式及range滑块样式*/
+.masked {
+  background: url(http://www.zhangxinxu.com/study/image/paint.png);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-animation-name: masked-animation;
+  -webkit-animation-duration: 9s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  color: #f00;
+}
+@-webkit-keyframes masked-animation {
+  0% {
+    background-position: left bottom;
+  }
+  100% {
+    background-position: right bottom;
+  }
+}
+input[type="range"] {
+      -webkit-box-shadow: 0 1px 0 0px #424242, 0 1px 0 #060607 inset, 0px 2px 10px 0px black inset, 1px 0px 2px rgba(0, 0, 0, 0.4) inset, 0 0px 1px rgba(0, 0, 0, 0.6) inset;
+    background-color: #272728;
+    border-radius: 15px;
+    width: 200px;
+    -webkit-appearance: none;
+    height: 10px;
+    border-color: transparent;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  cursor: default;
+  top: -5px;
+  height: 10px;
+  width: 20px;
+  background: none repeat scroll 0 0 #777;
+  border-radius: 50%;
 }
