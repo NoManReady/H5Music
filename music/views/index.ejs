@@ -9,32 +9,30 @@
   <body>
     <div class="container">
         <header class="header">
-            <h2 class="masked"><%=title%></h2>
-            <small class="music-text"><input type="text" value="NoManReady_Music" placeholder="mark any you want." id="music_title" /></small>
+            <h2 class="masked" data-bind="text:model.title"></h2>
+            <small class="music-text"><input type="text" placeholder="mark any you want." data-bind="value:model.title,valueUpdate: 'afterkeydown'"/></small>
             <div class="music-tool">
-                <div class="music-rate"></div>
+                <div class="music-rate" data-bind="text:model.rate"></div>
                 <div class="music-time">
-                	歌总时长:<span id="total_time"></span><br/>
-                	剩余时长:<span id="remain_time"></span><br/>
-                	播放时长:<span id="play_time"></span>
+                    歌总时长:<span data-bind="text:model.totalTime"></span><br/>
+                    剩余时长:<span data-bind="text:model.remainTime"></span><br/>
+                    播放时长:<span data-bind="text:model.playTime"></span>
                 </div>
                 <div class="type-tool clearfix">
                     <ul id="type_list">
-                        <li title="点状图">Doted</li>
-                        <li class="active" title="柱状图">Column</li>
+                        <li title="点状图" data-bind="css:{active:model.type()===2},click:typeChange.bind($root,2)">Doted</li>
+                        <li title="柱状图" data-bind="css:{active:model.type()===1},click:typeChange.bind($root,1)">Column</li>
                     </ul>
                 </div>
                 <p class="voice-tool">
-                    <input type="range" min="0" max="100" value="40" id="voice_control"/>
+                    <input type="range" min="0" max="100" value="40" data-bind=",event:{change:voiceChange}"/>
                 </p>
             </div>
         </header>
         <section class="main">
             <nav class="left">
-                <ul class="music-list" id="music_list">
-                    <%musics.forEach(function(music){%>
-                        <li class="music-item" title="<%=music%>"><%=music%></li>
-                    <%})%>
+                <ul class="music-list" id="music_list" data-bind="foreach:model.musics">
+                    <li class="music-item" data-bind="click:$root.musicClick.bind($root,$index()),text:$data,attr:{title:$data,id:'music_'+$index()},css:{active:$root.model.currentIndex()===$index()}"></li>
                 </ul>
             </nav>
             <div class="right">
@@ -42,6 +40,9 @@
             </div>
         </section>
     </div>
-    <script src="/javascripts/index.js" type="text/javascript"></script>
+    <script src="/javascripts/jquery.min.js" type="text/javascript"></script>
+    <script src="/javascripts/knockout.min.js" type="text/javascript"></script>
+    <script src="/javascripts/knockout.mapping.min.js" type="text/javascript"></script>
+    <script src="/javascripts/app.js" type="text/javascript"></script>
   </body>
 </html>

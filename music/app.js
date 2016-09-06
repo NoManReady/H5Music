@@ -8,7 +8,7 @@ var fs = require('fs');
 
 var app = express();
 
-var music=path.join(__dirname,'/public/musics');
+var music = path.join(__dirname, '/public/musics');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,28 +24,31 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/:id', function(req, res) {
-    var id = req.params.id;
-    fs.readFile(path.join(music,id),function(err,data){
-        if(err){
+app.get('/music',function(req,res){
+    fs.readdir(music, function(err, musics) {
+        if (err) {
             console.log(err);
-        }else{
+        } else {
+            res.send(musics);
+        }
+    });
+});
+app.get('/music/:id', function(req, res) {
+    var id = req.params.id;
+    fs.readFile(path.join(music, id), function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
             res.send(data);
         }
     });
 });
 
-app.get('/',function(req,res){
-    fs.readdir(music, function(err, musics) {
-        if (err) {
-            console.log(err);
-        } else {
-            res.render('index', {
-                musics: musics,
-                title: 'NoManReady_Music'
-            });
-        }
+app.get('/', function(req, res) {
+    res.render('index',{
+        title:'H5 Audio'
     });
+    
 })
 
 
@@ -80,7 +83,7 @@ app.use(function(err, req, res, next) {
     });
 });
 
-app.listen(8080,function(){
+app.listen(8080, function() {
     console.log('ok');
 })
 
