@@ -3,7 +3,7 @@
         constructor() {
             this.canvas = Music._canvas;
             this.ctx = this.canvas.getContext('2d');
-            this.size = 128;
+            this.size = 256;
             this.r = 40;
             this.type = 1;
 
@@ -12,16 +12,26 @@
 
             // 初始化audiocontext
             this.ac = Music._ac;
+            // 获取过滤node
+            this.filter = this.ac.createBiquadFilter();
             // 获取频谱分析node
             this.analyerNode = this.ac.createAnalyser();
-            this.analyerNode.fftSize = this.size * 4;
+            this.analyerNode.fftSize = this.size * 2;
             // 获取音量调节node
             this.voiceNode = this.ac.createGain();
             // 数据流对象
             this.bufferSource = null;
             // 数据流连接
+            this.filter.connect(this.analyerNode);
             this.analyerNode.connect(this.voiceNode);
             this.voiceNode.connect(this.ac.destination);
+
+            let sources = [
+                '../video/bound.mp3',
+                '../video/happy.mp3'
+            ];
+            this.bufferLoader = new BufferLoader(this.ac, sources, this._loadComplete.bind(this));
+            this.bufferLoader.load();
 
             // this.frame=Music._frame;
             this._init();
@@ -35,7 +45,11 @@
                 type: this.type,
                 rate: 'load...',
                 currentIndex: 0,
-                musics: []
+                musics: [],
+                hasFilter: true,
+                filterType: 'lowpass',
+                Q: '1',
+                progress:0
             };
             this.model = ko.mapping.fromJS(_model);
             ko.applyBindings(this);
@@ -45,10 +59,58 @@
                     this._loadMusicById($('#music_' + this.model.currentIndex()).text());
                 }, 500);
             });
+            this.model.filterType.subscribe(v => {
+                this.filter.type = v;
+            });
+            this.model.Q.subscribe(v => {
+                this.filter.Q.value = +v;
+            });
             this._loadCanvas();
-            window.onresize = ()=>{
+            window.onresize = () => {
                 this._loadCanvas();
             };
+            this._eventRegister();
+        }
+        _eventRegister() {
+            let _index=0,_source;
+            document.addEventListener('keydown', (e) => {
+                if (e.keyCode === 13) {
+                    if(_source){
+                        _source.stop();
+                    }
+                    _source = this._createBuffer(this.bufferList[_index]);
+                    _index=_index===0?1:0;
+                    _source.start(0);
+                }
+            });
+        }
+        _createBuffer(buffer) {
+            var source = this.ac.createBufferSource();
+            source.buffer = buffer;
+            // 将gain与目标相连接
+            source.connect(this.ac.destination);
+            return source;
+        }
+        _filterEffect() {
+            this.filter.type = this.model.filterType();
+            this.filter.frequency.value = this.ac.sampleRate / 2 * 0.4;
+
+        }
+        toggleFilter(val) {
+            this.source.disconnect(0);
+            this.filter.disconnect(0);
+            if (this.model.hasFilter()) {
+                this.source.connect(this.filter);
+                this.filter.connect(this.analyerNode);
+            } else {
+                this.source.connect(this.analyerNode);
+            }
+        }
+        frequencyChange(b, evt) {
+            let _target = evt.target,
+                _value = _target.value / _target.max,
+                _maxValue = this.ac.sampleRate / 2;
+            this.filter.frequency.value = _maxValue * _value;
         }
         musicClick(index, b, evt) {
             this.model.currentIndex(index);
@@ -57,11 +119,27 @@
         voiceChange(b, evt) {
             let _target = evt.target,
                 _voice = _target.value / _target.max;
-            this.voiceNode.gain.value = _voice * _voice;
+            this.voiceNode.gain.value = (1 + _voice) / 2;
         }
         typeChange(type) {
             this.model.type(type);
             this._loadCanvas();
+        }
+        toggleMusic(){
+            if(this.ac.state==='running'){
+                this.stop();
+            }else if(this.ac.state==='suspend'){
+                this.start();
+            }
+        }
+        start(){
+            this.ac.resume();
+        }
+        stop(){
+            this.ac.suspend();
+        }
+        _loadComplete(bufferList) {
+            this.bufferList = bufferList;
         }
         _loadCanvas() {
             let _canvasContainer = $('.right')[0];
@@ -85,7 +163,7 @@
             this.xhr.abort();
             this.bufferSource = this.ac.createBufferSource();
             if (this.source) {
-                this.source.stop();
+                this.source.stop(0);
                 this.source = null;
                 this.timers.optType = 'user';
             }
@@ -98,54 +176,61 @@
         }
         _analyerSource(source) {
             let t = this;
+            this.model.totalTime(0);
+            this.model.playTime(0);
+            this.model.remainTime(0);
+            this.model.rate('load...');
+            this.model.progress(0);
             this.ac.decodeAudioData(source, function(buffer) {
                 t.bufferSource.buffer = buffer;
-                t.bufferSource.connect(t.analyerNode);
+                t.bufferSource.connect(t.filter);
                 t.bufferSource.start(0);
                 t.source = t.bufferSource;
-                t.model.totalTime(t.bufferSource.buffer.duration);
-                t.bufferSource.onend = function() {
+                t.bufferSource.onended = function() {
+                    window.clearInterval(t._timer);
                     if (t.timers.optType === 'user') {
                         t.timers = {};
                         return;
                     }
+                    t.model.currentIndex(t.model.currentIndex()+1);
                     t.timers = {};
-                    let _nextId = $('music_' + t.model.currentIndex()).text();
+                    let _nextId = $('#music_' + t.model.currentIndex()).text();
+                    if(!_nextId){
+                        return;
+                    }
                     t._loadMusicById(_nextId);
                 };
+                t.beginTime=Date.now();
                 t._analyserData();
             }, error => {
                 console.error("decodeAudioData error", error.message);
             });
         }
         _round() {
+            window.requestAnimationFrame(this._round.bind(this));
             let _arr = this.timers.arr;
-            this.analyerNode.getByteFrequencyData(_arr);
-            setTimeout(this._round.bind(this), 1000 / 60);
-            this._draw(_arr);
-            if (this.timers.firstTime) {
-                this.timers.lastTime = new Date().getTime();
-                // 本地时间差（ms）
-                this.timers.timeCount = this.timers.lastTime - this.timers.firstTime;
-                // 播放时间
-                this.timers.playTime = Math.ceil(this.timers.timeCount / 1000);
-                // 剩余时间
-                this.timers.remainTime = this.model.totalTime() - this.timers.playTime;
-
-                this.model.playTime(this.timers.playTime);
-                this.model.remainTime(this.timers.remainTime);
-            } else {
-                this.timers.firstTime = new Date().getTime();
+            if(this._rateValue&&this._rateValue>=100){
                 return;
             }
-            let _value = this.timers.playTime / this.source.buffer.duration * 100
-            let _rate = _value > 100 ? 100 : _value;
-            this.model.rate(_rate.toFixed(0) + '%');
+            // this.filter.Q.value+=1;
+            this.analyerNode.getByteFrequencyData(_arr);
+            this._draw(_arr);
+            if(!this.source){
+                return;
+            }
+            let _playTime=(Date.now()-this.beginTime)/1000
+            this.model.totalTime(this.source.buffer.duration.toFixed(0));
+            this.model.playTime(_playTime.toFixed(0));
+            this.model.remainTime(this.model.totalTime() - this.model.playTime());
+            this._rateValue = this.model.playTime() / this.model.totalTime() * 100
+            this.model.rate(this._rateValue.toFixed(0) + '%');
+            this.model.progress(_playTime/this.source.buffer.duration*100+'%');
         }
         _analyserData() {
-            this.timers.arr = new Uint8Array(this.analyerNode.frequencyBinCount);
             // Music._frame(this._round);
-            setTimeout(this._round.bind(this), 1000 / 60);
+            this.timers.arr = new Uint8Array(this.analyerNode.frequencyBinCount);
+            this._rateValue=0;
+            window.requestAnimationFrame(this._round.bind(this));
         }
         _dotedHandler() {
             let dots = [];
@@ -185,10 +270,14 @@
 
                 })
             }
-            for (let i = 0; i < this.size; i++) {
+            let _size=this.size;
+            if(this.model.type() == 1){
+                _size*=1;
+            }
+            for (let i = 0; i < _size; i++) {
                 this.ctx.beginPath();
                 let h = arr[i] / 256 * this.canvas.height,
-                    w = canvas.width / this.size,
+                    w = canvas.width / _size,
                     line;
                 this.ctx.fillStyle = line;
                 if (this.model.type() == 1) {
@@ -198,7 +287,7 @@
                     line.addColorStop(1, 'blue');
                     this.ctx.fillStyle = line;
                     this.ctx.fillRect(w * i, this.canvas.height - h, w * 0.6, h);
-                } else {
+                } else if(this.model.type() == 2) {
                     let dot = this.dots[i],
                         r = arr[i] / 256 * this.r;
                     line = this.ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, r);
@@ -206,6 +295,8 @@
                     line.addColorStop(1, dot.color);
                     this.ctx.fillStyle = line;
                     this.ctx.arc(dot.x, dot.y, r, 0, Math.PI * 2, true);
+                }else if(this.model.type() == 3){
+
                 }
                 this.ctx.fill();
             }
@@ -225,5 +316,46 @@
             // return setTimeout('func', 1000/60);
         }
     }
-    new Music();
+
+    class BufferLoader{
+        constructor(context, urlList, callback) {
+            this.context = context;
+            this.urlList = urlList;
+            this.onload = callback;
+            this.bufferList = new Array();
+            this.loadCount = 0;
+        }
+        loadBuffer(url, index) {
+            let request = new XMLHttpRequest();
+            request.open("GET", url, true);
+            request.responseType = "arraybuffer";
+
+            let loader = this;
+
+            request.onload = function() {
+                loader.context.decodeAudioData(
+                    request.response,
+                    function(buffer) {
+                        if (!buffer) {
+                            alert('error decoding file data: ' + url);
+                            return;
+                        }
+                        loader.bufferList[index] = buffer;
+                        if (++loader.loadCount == loader.urlList.length)
+                            loader.onload(loader.bufferList);
+                    }
+                );
+            }
+            request.onerror = function() {
+                alert('BufferLoader: XHR error');
+            }
+            request.send();
+        }
+        load(){
+            for (let i = 0; i < this.urlList.length; ++i)
+            this.loadBuffer(this.urlList[i], i);
+        }
+    }
+
+    window.music = new Music();
 })(jQuery);

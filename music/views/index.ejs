@@ -8,6 +8,7 @@
   </head>
   <body>
     <div class="container">
+        <div class="progress" data-bind="style:{width:model.progress()}"></div>
         <header class="header">
             <h2 class="masked" data-bind="text:model.title"></h2>
             <small class="music-text"><input type="text" placeholder="mark any you want." data-bind="value:model.title,valueUpdate: 'afterkeydown'"/></small>
@@ -18,6 +19,13 @@
                     剩余时长:<span data-bind="text:model.remainTime"></span><br/>
                     播放时长:<span data-bind="text:model.playTime"></span>
                 </div>
+                <div class="Q">
+                    原始品质:<input value="1" type="radio" data-bind="checked:model.Q">
+                    高品质:<input value="30" type="radio" data-bind="checked:model.Q">
+                </div>
+                <div class="control" data-bind="visible:model.totalTime">
+                    <button data-bind="click:toggleMusic">播放/暂停</button>
+                </div>
                 <div class="type-tool clearfix">
                     <ul id="type_list">
                         <li title="点状图" data-bind="css:{active:model.type()===2},click:typeChange.bind($root,2)">Doted</li>
@@ -25,7 +33,19 @@
                     </ul>
                 </div>
                 <p class="voice-tool">
-                    <input type="range" min="0" max="100" value="40" data-bind=",event:{change:voiceChange}"/>
+                    &nbsp;&nbsp;&nbsp;lowpass:<input value="lowpass" type="radio" min="0" max="100" value="40" data-bind="checked:model.filterType"/>
+                    &nbsp;&nbsp;&nbsp;highpass:<input value="highpass" type="radio" data-bind="checked:model.filterType">
+                    &nbsp;&nbsp;&nbsp;bandpass:<input value="bandpass" type="radio" data-bind="checked:model.filterType">
+                    &nbsp;&nbsp;&nbsp;lowshelf:<input value="lowshelf" type="radio" data-bind="checked:model.filterType">
+                    &nbsp;&nbsp;&nbsp;highshelf:<input value="highshelf" type="radio" min="0" max="100" value="40" data-bind="checked:model.filterType"/>
+                    &nbsp;&nbsp;&nbsp;peaking:<input value="peaking" type="radio" data-bind="checked:model.filterType">
+                    &nbsp;&nbsp;&nbsp;notch:<input value="notch" type="radio" data-bind="checked:model.filterType">
+                    &nbsp;&nbsp;&nbsp;allpass:<input value="allpass" type="radio" data-bind="checked:model.filterType">
+                </p>
+                <p class="voice-tool">
+                    voice：<input type="range" min="0" max="100" value="40" data-bind="event:{change:voiceChange}"/>
+                    &nbsp;&nbsp;&nbsp;frequency:<input type="range" min="0" max="100" value="40" data-bind="event:{change:frequencyChange}"/>
+                    &nbsp;&nbsp;&nbsp;hasFilter:<input type="checkbox" data-bind="checked:model.hasFilter,event:{change:toggleFilter}">
                 </p>
             </div>
         </header>

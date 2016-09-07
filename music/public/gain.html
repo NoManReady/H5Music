@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>交叉音</title>
+</head>
+<body>
+	<button id="toggle">start</button>
+	<p style="margin-top:20px;">
+		<input type="range" max='100' value='0' id="range">
+		<span id="rangeValue"></span>
+	</p>
+	<script src="/javascripts/jquery.min.js" type="text/javascript"></script>
+	<script>
+
+		var ac=new window.AudioContext();
+		var sources = [
+		    '../video/marry.mp3',
+		    '../video/happy.mp3'
+		],gain0,gain1;
+		class BufferLoader {
+		    constructor(context, urlList, callback) {
+		        this.context = context;
+		        this.urlList = urlList;
+		        this.onload = callback;
+		        this.bufferList = new Array();
+		        this.loadCount = 0;
+		    }
+		    loadBuffer(url, index) {
+		        let request = new XMLHttpRequest();
+		        request.open("GET", url, true);
+		        request.responseType = "arraybuffer";
+
+		        let loader = this;
+
+		        request.onload = function() {
+		            loader.context.decodeAudioData(
+		                request.response,
+		                function(buffer) {
+		                    if (!buffer) {
+		                        alert('error decoding file data: ' + url);
+		                        return;
+		                    }
+		                    loader.bufferList[index] = buffer;
+		                    if (++loader.loadCount == loader.urlList.length)
+		                        loader.onload(loader.bufferList);
+		                }
+		            );
+		        }
+		        request.onerror = function() {
+		            alert('BufferLoader: XHR error');
+		        }
+		        request.send();
+		    }
+		    load() {
+		        for (let i = 0; i < this.urlList.length; ++i)
+		            this.loadBuffer(this.urlList[i], i);
+		    }
+		}
+		  function createSource(buffer) {
+		      var source = ac.createBufferSource();
+		      var gainNode = ac.createGain();
+		      source.buffer = buffer;
+		      source.loop = true;
+		      source.connect(gainNode);
+		      gainNode.connect(ac.destination);
+		      return {
+		          source: source,
+		          gainNode: gainNode
+		      };
+		  }
+		  function crose(e) {
+		      var x = parseInt(e.target.value) / parseInt(e.target.max);
+		      document.getElementById('rangeValue').innerHtml=x;
+		      // Use an equal-power crossfading curve:
+		      var value1 = 0.5 * (1.0 + Math.cos(x * Math.PI));
+		      var value2 = 0.5 * (1.0 + Math.cos((1.0 - x) * Math.PI));
+		      gain0.gainNode.gain.value = value1;
+		      gain1.gainNode.gain.value = value2;
+		  }
+
+		function complete(list){
+			list.forEach(function(s,i){
+				window['gain'+i]=createSource(s);
+				window['gain'+i].source.start(0);
+			});
+		}
+		document.getElementById('range').addEventListener('change', crose);
+		
+		document.getElementById('toggle').onclick = function() {
+		    if (ac.state === 'running') {
+		        ac.suspend().then(function() {
+		            this.textContent = 'Resume context';
+		        });
+		    } else if (ac.state === 'suspended') {
+		        ac.resume().then(function() {
+		            this.textContent = 'Suspend context';
+		        });
+		    }
+		}
+
+		$('#range').val(40);
+		var bufferLoader=new BufferLoader(ac,sources,complete);
+		bufferLoader.load();
+	</script>
+</body>
+</html>
