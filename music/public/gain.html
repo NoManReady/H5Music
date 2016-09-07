@@ -74,7 +74,7 @@
 		      document.getElementById('rangeValue').innerHtml=x;
 		      // Use an equal-power crossfading curve:
 		      var value1 = 0.5 * (1.0 + Math.cos(x * Math.PI));
-		      var value2 = 0.5 * (1.0 + Math.cos((1.0 - x) * Math.PI));
+		      var value2 = 0.5 * (1.0 + Math.sin(x * Math.PI));
 		      gain0.gainNode.gain.value = value1;
 		      gain1.gainNode.gain.value = value2;
 		  }

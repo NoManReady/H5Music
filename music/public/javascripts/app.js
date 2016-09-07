@@ -3,17 +3,19 @@
         constructor() {
             this.canvas = Music._canvas;
             this.ctx = this.canvas.getContext('2d');
-            this.size = 256;
+            this.size = 128;
             this.r = 40;
             this.type = 1;
 
             this.xhr = new XMLHttpRequest();
             this.timers = {};
+            this.stopTime=0;
 
             // 初始化audiocontext
             this.ac = Music._ac;
             // 获取过滤node
             this.filter = this.ac.createBiquadFilter();
+            this.filter.type='allpass';
             // 获取频谱分析node
             this.analyerNode = this.ac.createAnalyser();
             this.analyerNode.fftSize = this.size * 2;
@@ -30,10 +32,10 @@
                 '../video/bound.mp3',
                 '../video/happy.mp3'
             ];
+            this.count = 1;
             this.bufferLoader = new BufferLoader(this.ac, sources, this._loadComplete.bind(this));
             this.bufferLoader.load();
 
-            // this.frame=Music._frame;
             this._init();
         }
         _init() {
@@ -47,9 +49,9 @@
                 currentIndex: 0,
                 musics: [],
                 hasFilter: true,
-                filterType: 'lowpass',
+                filterType: 'allpass',
                 Q: '1',
-                progress:0
+                progress: 0
             };
             this.model = ko.mapping.fromJS(_model);
             ko.applyBindings(this);
@@ -72,14 +74,15 @@
             this._eventRegister();
         }
         _eventRegister() {
-            let _index=0,_source;
+            let _index = 0,
+                _source;
             document.addEventListener('keydown', (e) => {
                 if (e.keyCode === 13) {
-                    if(_source){
+                    if (_source) {
                         _source.stop();
                     }
                     _source = this._createBuffer(this.bufferList[_index]);
-                    _index=_index===0?1:0;
+                    _index = _index === 0 ? 1 : 0;
                     _source.start(0);
                 }
             });
@@ -119,24 +122,28 @@
         voiceChange(b, evt) {
             let _target = evt.target,
                 _voice = _target.value / _target.max;
-            this.voiceNode.gain.value = (1 + _voice) / 2;
+            this.voiceNode.gain.value = _voice * _voice;
         }
         typeChange(type) {
             this.model.type(type);
             this._loadCanvas();
         }
-        toggleMusic(){
-            if(this.ac.state==='running'){
+        toggleMusic() {
+            if (this.ac.state === 'running') {
                 this.stop();
-            }else if(this.ac.state==='suspend'){
+            } else if (this.ac.state === 'suspended') {
                 this.start();
             }
         }
-        start(){
+        start() {
             this.ac.resume();
+            clearInterval(this._stopTime);
         }
-        stop(){
+        stop() {
             this.ac.suspend();
+            this._stopTime=setInterval(()=>{
+                this.stopTime+=1000;
+            }, 1000);
         }
         _loadComplete(bufferList) {
             this.bufferList = bufferList;
@@ -160,6 +167,9 @@
             });
         }
         _loadMusicById(id) {
+            if (!id) {
+                return;
+            }
             this.xhr.abort();
             this.bufferSource = this.ac.createBufferSource();
             if (this.source) {
@@ -186,50 +196,57 @@
                 t.bufferSource.connect(t.filter);
                 t.bufferSource.start(0);
                 t.source = t.bufferSource;
-                t.bufferSource.onended = function() {
+                // 淡入下一首曲目
+                t.voiceNode.gain.linearRampToValueAtTime(0, t.ac.currentTime);
+                t.voiceNode.gain.linearRampToValueAtTime(1, t.ac.currentTime + Music.FADE_TIME);
+                // 在曲子快要结束时，淡出之
+                t.voiceNode.gain.linearRampToValueAtTime(1, t.ac.currentTime + (t.source.buffer.duration - Music.FADE_TIME) < 0 ? t.source.buffer.duration : t.source.buffer.duration - Music.FADE_TIME);
+                t.voiceNode.gain.linearRampToValueAtTime(0, t.ac.currentTime + t.source.buffer.duration);
+                t.source.onended = function() {
                     window.clearInterval(t._timer);
                     if (t.timers.optType === 'user') {
                         t.timers = {};
                         return;
                     }
-                    t.model.currentIndex(t.model.currentIndex()+1);
+                    t.model.currentIndex(t.model.currentIndex() + 1);
                     t.timers = {};
                     let _nextId = $('#music_' + t.model.currentIndex()).text();
-                    if(!_nextId){
+                    if (!_nextId) {
                         return;
                     }
                     t._loadMusicById(_nextId);
                 };
-                t.beginTime=Date.now();
+                t.beginTime = Date.now();
                 t._analyserData();
             }, error => {
                 console.error("decodeAudioData error", error.message);
             });
         }
         _round() {
-            window.requestAnimationFrame(this._round.bind(this));
             let _arr = this.timers.arr;
-            if(this._rateValue&&this._rateValue>=100){
+            if (this._rateValue && this._rateValue >= 100||!_arr) {
                 return;
             }
-            // this.filter.Q.value+=1;
             this.analyerNode.getByteFrequencyData(_arr);
+            // window.requestAnimationFrame(this._round.bind(this));
+            this._timer=setTimeout(this._round.bind(this), 1000/60);
             this._draw(_arr);
-            if(!this.source){
+            // this.filter.Q.value+=1;
+            if (!this.source||this.ac.state === 'suspended') {
                 return;
             }
-            let _playTime=(Date.now()-this.beginTime)/1000
+            let _playTime = (Date.now() - this.beginTime-this.stopTime) / 1000
             this.model.totalTime(this.source.buffer.duration.toFixed(0));
             this.model.playTime(_playTime.toFixed(0));
             this.model.remainTime(this.model.totalTime() - this.model.playTime());
             this._rateValue = this.model.playTime() / this.model.totalTime() * 100
             this.model.rate(this._rateValue.toFixed(0) + '%');
-            this.model.progress(_playTime/this.source.buffer.duration*100+'%');
+            this.model.progress(_playTime / this.source.buffer.duration * 100 + '%');
         }
         _analyserData() {
             // Music._frame(this._round);
             this.timers.arr = new Uint8Array(this.analyerNode.frequencyBinCount);
-            this._rateValue=0;
+            this._rateValue = 0;
             window.requestAnimationFrame(this._round.bind(this));
         }
         _dotedHandler() {
@@ -251,7 +268,18 @@
             return Math.random() * (n - m) + m;
         }
         _draw(arr) {
+            // if (arr) {
+            //     this._cache = arr.slice(0);
+            // } else {
+            //     arr = this._cache;
+            // }
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            // if (this.model.rate() === 'load...') {
+            //     arr.forEach(d => {
+            //         d -= 16 * this.count;
+            //     });
+            //     this.count++;
+            // }
             if (this.model.type() === 2) {
                 this.dots.forEach((dot) => {
                     if (dot.direct === 'back') {
@@ -270,9 +298,9 @@
 
                 })
             }
-            let _size=this.size;
-            if(this.model.type() == 1){
-                _size*=1;
+            let _size = this.size;
+            if (this.model.type() == 1) {
+                _size *= 1;
             }
             for (let i = 0; i < _size; i++) {
                 this.ctx.beginPath();
@@ -287,7 +315,7 @@
                     line.addColorStop(1, 'blue');
                     this.ctx.fillStyle = line;
                     this.ctx.fillRect(w * i, this.canvas.height - h, w * 0.6, h);
-                } else if(this.model.type() == 2) {
+                } else if (this.model.type() == 2) {
                     let dot = this.dots[i],
                         r = arr[i] / 256 * this.r;
                     line = this.ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, r);
@@ -295,10 +323,27 @@
                     line.addColorStop(1, dot.color);
                     this.ctx.fillStyle = line;
                     this.ctx.arc(dot.x, dot.y, r, 0, Math.PI * 2, true);
-                }else if(this.model.type() == 3){
-
+                } else if (this.model.type() == 3) {
+                    line = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+                    line.addColorStop(0, "red");
+                    line.addColorStop(0.5, "green");
+                    line.addColorStop(1.0, "blue");
+                    this.ctx.strokeStyle = line;
+                    this.ctx.lineWidth=1;
+                    if (i === 0) {
+                        this.ctx.moveTo(0,0);
+                        this.ctx.lineTo(w * i / 2, this.canvas.height - h);
+                    } else {
+                        this.ctx.moveTo(w * (i-1) / 2, this.canvas.height - arr[i-1] / 256 * this.canvas.height);
+                        this.ctx.lineTo(w * i / 2, this.canvas.height - h);
+                    }
+                    this.ctx.stroke();
                 }
-                this.ctx.fill();
+                if (this.model.type() !== 3) {
+                    this.ctx.fill();
+                }else{
+                    this.ctx.stroke();
+                }
             }
         }
         static get _canvas() {
@@ -315,9 +360,12 @@
         static get _frame() {
             // return setTimeout('func', 1000/60);
         }
+        static get FADE_TIME() {
+            return 5;
+        }
     }
 
-    class BufferLoader{
+    class BufferLoader {
         constructor(context, urlList, callback) {
             this.context = context;
             this.urlList = urlList;
@@ -351,9 +399,9 @@
             }
             request.send();
         }
-        load(){
+        load() {
             for (let i = 0; i < this.urlList.length; ++i)
-            this.loadBuffer(this.urlList[i], i);
+                this.loadBuffer(this.urlList[i], i);
         }
     }
 

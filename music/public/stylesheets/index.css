@@ -39,7 +39,9 @@ body,
 .clearfix {
     zoom: 1;
 }
-
+input[type="range"]{
+    outline: none;
+}
 /*header*/
 .header {
     margin: 10px;
@@ -137,7 +139,7 @@ body,
 }
 .header ul {
     margin: 0 auto;
-    width: 170px;
+    width: 260px;
 }
 .header li {
     float: left;
